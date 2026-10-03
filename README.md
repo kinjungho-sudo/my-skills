@@ -11,3 +11,5 @@
   작성 가이드: 핵심 규칙, 훅, 이벤트, 로딩, 성능 + 공식 문서 사본(`references/`)
 - [`shadergradient`](./shadergradient) — ShaderGradient(React/Vue) 3D 움직이는
   그라디언트 배경 적용 가이드: 설치·호환 버전, props, 프리셋, SSR, 성능
+- [`liquid-logo`](./liquid-logo) — 로고를 리퀴드 메탈 효과로 만드는 가이드
+  (원리, `@paper-design/shaders-react`의 `LiquidMetal` 적용, 라이선스 주의)
