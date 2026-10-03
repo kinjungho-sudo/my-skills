@@ -7,3 +7,5 @@
 
 - [`samsung-word`](./samsung-word) — 삼성식 표준 문서 작성 가이드에 맞춘 개조식
   워드(.docx) 보고서/회의자료/정책서 생성 스킬
+- [`react-three-fiber`](./react-three-fiber) — React Three Fiber(v9) 3D 장면
+  작성 가이드: 핵심 규칙, 훅, 이벤트, 로딩, 성능 + 공식 문서 사본(`references/`)
