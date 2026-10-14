@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Second Brain</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 로그인 화면 -->
+  <section id="view-login" class="center-view" hidden>
+    <div class="card">
+      <h1>Second Brain</h1>
+      <p class="muted">준호 · 재한 전용 노트</p>
+      <button id="btn-login" class="primary">Google로 로그인</button>
+    </div>
+  </section>
+
+  <!-- 초대되지 않은 계정 -->
+  <section id="view-denied" class="center-view" hidden>
+    <div class="card">
+      <h1>접근 권한이 없습니다</h1>
+      <p><span id="denied-email"></span> 계정은 초대 목록에 없습니다.</p>
+      <p class="muted">초대받은 Google 계정으로 다시 로그인해 주세요.</p>
+      <button id="btn-logout-denied">로그아웃</button>
+    </div>
+  </section>
+
+  <!-- 메인 -->
+  <section id="view-app" hidden>
+    <header class="topbar">
+      <button id="btn-toggle-sidebar" class="icon" title="노트 목록">☰</button>
+      <strong class="brand">Second Brain</strong>
+      <span class="spacer"></span>
+      <button id="btn-graph">그래프</button>
+      <span id="me-name" class="muted"></span>
+      <button id="btn-logout">로그아웃</button>
+    </header>
+
+    <div class="layout">
+      <aside id="sidebar">
+        <input id="search" type="search" placeholder="제목·본문 검색" autocomplete="off" />
+        <button id="btn-new" class="primary block">+ 새 노트</button>
+        <ul id="note-list" class="note-list"></ul>
+      </aside>
+
+      <main id="editor-pane">
+        <div id="empty-state" class="empty">왼쪽에서 노트를 고르거나 새 노트를 만드세요.</div>
+        <div id="editor" hidden>
+          <div id="conflict-banner" class="banner" hidden>
+            <span id="conflict-text"></span>
+            <button id="btn-conflict-theirs">상대 버전 불러오기</button>
+            <button id="btn-conflict-mine">내 내용으로 덮어쓰기</button>
+          </div>
+          <div class="title-row">
+            <input id="note-title" class="note-title" autocomplete="off" />
+            <div class="mode-toggle">
+              <button id="btn-mode-edit" class="active">편집</button>
+              <button id="btn-mode-preview">미리보기</button>
+            </div>
+            <button id="btn-archive" class="danger-outline" title="목록에서 숨김 (DB에는 보관)">보관</button>
+          </div>
+          <div id="note-meta" class="muted small"></div>
+          <div id="editor-wrap" class="editor-wrap">
+            <textarea id="note-content" spellcheck="false" placeholder="마크다운으로 작성하세요. [[노트 제목]]으로 다른 노트를 연결합니다."></textarea>
+            <ul id="suggest" class="suggest" hidden></ul>
+          </div>
+          <article id="note-preview" class="preview" hidden></article>
+          <div id="save-status" class="muted small"></div>
+        </div>
+      </main>
+
+      <aside id="right-panel">
+        <h3>백링크</h3>
+        <ul id="backlinks" class="link-list"></ul>
+        <h3>나가는 링크</h3>
+        <ul id="outlinks" class="link-list"></ul>
+        <h3>수정 이력</h3>
+        <ul id="revisions" class="link-list"></ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- 이름 변경 확인 (Obsidian과 같은 3가지 선택) -->
+  <dialog id="dlg-rename">
+    <h3>링크 업데이트</h3>
+    <p>이름을 바꾸면 다른 노트의 링크도 고칠까요?</p>
+    <p id="rename-impact" class="muted"></p>
+    <div class="dialog-buttons">
+      <button id="btn-rename-always" class="primary">항상 업데이트</button>
+      <button id="btn-rename-once">이번만 업데이트</button>
+      <button id="btn-rename-skip">업데이트 안 함</button>
+    </div>
+  </dialog>
+
+  <!-- 수정 이력 보기 -->
+  <dialog id="dlg-revision" class="wide">
+    <h3 id="revision-title"></h3>
+    <pre id="revision-content" class="revision-content"></pre>
+    <div class="dialog-buttons">
+      <button id="btn-revision-restore" class="primary">이 버전으로 되돌리기</button>
+      <button id="btn-revision-close">닫기</button>
+    </div>
+  </dialog>
+
+  <!-- 그래프 뷰 -->
+  <dialog id="dlg-graph" class="graph-dialog">
+    <div class="graph-header">
+      <strong>그래프</strong>
+      <span class="legend"><i class="dot me"></i><span id="legend-me"></span> <i class="dot other"></i><span id="legend-other"></span> <i class="dot ghost"></i>아직 없는 노트</span>
+      <button id="btn-graph-close">닫기</button>
+    </div>
+    <canvas id="graph-canvas"></canvas>
+  </dialog>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
