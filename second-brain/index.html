@@ -2,18 +2,20 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="color-scheme" content="dark light" />
   <title>Second Brain</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="theme-dark">
   <!-- 로그인 화면 -->
   <section id="view-login" class="center-view" hidden>
     <div class="card">
+      <div class="card-logo" data-icon="graph"></div>
       <h1>Second Brain</h1>
-      <p class="muted">준호 · 재한 전용 노트</p>
-      <button id="btn-login" class="primary">Google로 로그인</button>
+      <p class="muted">정호 · 재한의 공유 노트</p>
+      <button id="btn-login" class="mod-cta">Google로 로그인</button>
     </div>
   </section>
 
@@ -28,93 +30,103 @@
   </section>
 
   <!-- 메인 -->
-  <section id="view-app" hidden>
-    <header class="topbar">
-      <button id="btn-toggle-sidebar" class="icon" title="노트 목록">☰</button>
-      <strong class="brand">Second Brain</strong>
-      <span class="spacer"></span>
-      <button id="btn-graph">그래프</button>
-      <span id="me-name" class="muted"></span>
-      <button id="btn-logout">로그아웃</button>
-    </header>
-
-    <div class="layout">
-      <aside id="sidebar">
-        <input id="search" type="search" placeholder="제목·본문 검색" autocomplete="off" />
-        <button id="btn-new" class="primary block">+ 새 노트</button>
-        <ul id="note-list" class="note-list"></ul>
-      </aside>
-
-      <main id="editor-pane">
-        <div id="empty-state" class="empty">왼쪽에서 노트를 고르거나 새 노트를 만드세요.</div>
-        <div id="editor" hidden>
-          <div id="conflict-banner" class="banner" hidden>
-            <span id="conflict-text"></span>
-            <button id="btn-conflict-theirs">상대 버전 불러오기</button>
-            <button id="btn-conflict-mine">내 내용으로 덮어쓰기</button>
-          </div>
-          <div class="title-row">
-            <input id="note-title" class="note-title" autocomplete="off" />
-            <div class="mode-toggle">
-              <button id="btn-mode-edit" class="active">편집</button>
-              <button id="btn-mode-preview">미리보기</button>
-            </div>
-            <button id="btn-archive" class="danger-outline" title="목록에서 숨김 (DB에는 보관)">보관</button>
-          </div>
-          <div id="note-meta" class="muted small"></div>
-          <div id="editor-wrap" class="editor-wrap">
-            <textarea id="note-content" spellcheck="false" placeholder="마크다운으로 작성하세요. [[노트 제목]]으로 다른 노트를 연결합니다."></textarea>
-            <ul id="suggest" class="suggest" hidden></ul>
-          </div>
-          <article id="note-preview" class="preview" hidden></article>
-          <div id="save-status" class="muted small"></div>
+  <div id="view-app" class="app-container" hidden>
+    <div class="workspace">
+      <nav class="ribbon" id="ribbon">
+        <div class="ribbon-actions">
+          <button class="clickable-icon" data-cmd="toggle-left" data-icon="panel-left" aria-label="왼쪽 사이드바"></button>
+          <button class="clickable-icon" data-cmd="switcher" data-icon="search" aria-label="빠른 이동 (Ctrl+O)"></button>
+          <button class="clickable-icon" data-cmd="graph" data-icon="graph" aria-label="그래프 뷰 (Ctrl+G)"></button>
+          <button class="clickable-icon" data-cmd="daily" data-icon="calendar" aria-label="오늘의 데일리 노트 (Alt+D)"></button>
+          <button class="clickable-icon" data-cmd="palette" data-icon="command" aria-label="명령 팔레트 (Ctrl+P)"></button>
+          <button class="clickable-icon" data-cmd="archive-list" data-icon="archive" aria-label="보관함"></button>
         </div>
+        <div class="ribbon-actions ribbon-bottom">
+          <button class="clickable-icon" data-cmd="theme" data-icon="moon" aria-label="테마 전환"></button>
+          <button class="clickable-icon" data-cmd="settings" data-icon="settings" aria-label="설정 (Ctrl+,)"></button>
+          <button class="clickable-icon" data-cmd="logout" data-icon="logout" aria-label="로그아웃"></button>
+        </div>
+      </nav>
+
+      <aside class="sidedock sidedock-left" id="left-dock">
+        <div class="sidedock-tabs">
+          <button class="clickable-icon sidedock-tab is-active" data-pane="files" data-icon="files" aria-label="파일 탐색기"></button>
+          <button class="clickable-icon sidedock-tab" data-pane="search" data-icon="search" aria-label="검색 (Ctrl+Shift+F)"></button>
+          <button class="clickable-icon sidedock-tab" data-pane="tags" data-icon="hash" aria-label="태그"></button>
+          <span class="spacer"></span>
+          <button class="clickable-icon mobile-only" data-cmd="toggle-left" data-icon="x" aria-label="닫기"></button>
+        </div>
+        <div class="pane" id="pane-files">
+          <div class="nav-header">
+            <button class="clickable-icon" data-cmd="new-note" data-icon="file-plus" aria-label="새 노트 (Alt+N)"></button>
+            <button class="clickable-icon" data-cmd="new-folder" data-icon="folder-plus" aria-label="새 폴더"></button>
+            <button class="clickable-icon" data-cmd="sort" data-icon="sort" aria-label="정렬 방식"></button>
+            <button class="clickable-icon" data-cmd="collapse-all" data-icon="collapse" aria-label="모두 접기"></button>
+          </div>
+          <div class="nav-files" id="file-tree"></div>
+        </div>
+        <div class="pane" id="pane-search" hidden>
+          <div class="search-input-container">
+            <input id="search-input" type="search" placeholder="검색어 입력…" autocomplete="off" spellcheck="false" />
+          </div>
+          <div class="search-help muted">예: <code>단어</code> <code>"정확한 구절"</code> <code>tag:#할일</code> <code>path:프로젝트</code> <code>file:회의</code> <code>-제외</code></div>
+          <div class="search-info" id="search-info"></div>
+          <div class="search-results" id="search-results"></div>
+        </div>
+        <div class="pane" id="pane-tags" hidden>
+          <div class="tag-pane" id="tag-list"></div>
+        </div>
+      </aside>
+      <div class="resize-handle" id="resize-left"></div>
+
+      <main class="workspace-main">
+        <div class="tab-header">
+          <button class="clickable-icon mobile-only" data-cmd="toggle-left" data-icon="menu" aria-label="메뉴"></button>
+          <div class="tab-list" id="tab-list"></div>
+          <button class="clickable-icon tab-new" data-cmd="new-tab" data-icon="plus" aria-label="새 탭"></button>
+          <span class="spacer"></span>
+          <button class="clickable-icon" data-cmd="toggle-right" data-icon="panel-right" aria-label="오른쪽 사이드바"></button>
+        </div>
+        <div class="leaf-container" id="leaf-container"></div>
       </main>
 
-      <aside id="right-panel">
-        <h3>백링크</h3>
-        <ul id="backlinks" class="link-list"></ul>
-        <h3>나가는 링크</h3>
-        <ul id="outlinks" class="link-list"></ul>
-        <h3>수정 이력</h3>
-        <ul id="revisions" class="link-list"></ul>
+      <div class="resize-handle" id="resize-right"></div>
+      <aside class="sidedock sidedock-right" id="right-dock">
+        <div class="sidedock-tabs">
+          <button class="clickable-icon sidedock-tab is-active" data-pane="backlinks" data-icon="link" aria-label="백링크"></button>
+          <button class="clickable-icon sidedock-tab" data-pane="outgoing" data-icon="outgoing" aria-label="나가는 링크"></button>
+          <button class="clickable-icon sidedock-tab" data-pane="outline" data-icon="list" aria-label="개요"></button>
+          <button class="clickable-icon sidedock-tab" data-pane="localgraph" data-icon="graph" aria-label="로컬 그래프"></button>
+          <button class="clickable-icon sidedock-tab" data-pane="history" data-icon="history" aria-label="수정 이력"></button>
+          <span class="spacer"></span>
+          <button class="clickable-icon mobile-only" data-cmd="toggle-right" data-icon="x" aria-label="닫기"></button>
+        </div>
+        <div class="pane" id="pane-backlinks"></div>
+        <div class="pane" id="pane-outgoing" hidden></div>
+        <div class="pane" id="pane-outline" hidden></div>
+        <div class="pane pane-graph" id="pane-localgraph" hidden>
+          <div class="local-graph-controls">
+            <label>깊이 <select id="local-depth"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+            <label><input type="checkbox" id="local-tags" /> 태그</label>
+          </div>
+          <canvas id="local-graph" class="graph-canvas"></canvas>
+        </div>
+        <div class="pane" id="pane-history" hidden></div>
       </aside>
     </div>
-  </section>
 
-  <!-- 이름 변경 확인 (Obsidian과 같은 3가지 선택) -->
-  <dialog id="dlg-rename">
-    <h3>링크 업데이트</h3>
-    <p>이름을 바꾸면 다른 노트의 링크도 고칠까요?</p>
-    <p id="rename-impact" class="muted"></p>
-    <div class="dialog-buttons">
-      <button id="btn-rename-always" class="primary">항상 업데이트</button>
-      <button id="btn-rename-once">이번만 업데이트</button>
-      <button id="btn-rename-skip">업데이트 안 함</button>
-    </div>
-  </dialog>
+    <footer class="status-bar" id="status-bar">
+      <span class="status-item" id="status-presence"></span>
+      <span class="spacer"></span>
+      <span class="status-item" id="status-backlinks"></span>
+      <span class="status-item" id="status-words"></span>
+      <span class="status-item" id="status-chars"></span>
+      <span class="status-item" id="status-save"></span>
+    </footer>
+  </div>
 
-  <!-- 수정 이력 보기 -->
-  <dialog id="dlg-revision" class="wide">
-    <h3 id="revision-title"></h3>
-    <pre id="revision-content" class="revision-content"></pre>
-    <div class="dialog-buttons">
-      <button id="btn-revision-restore" class="primary">이 버전으로 되돌리기</button>
-      <button id="btn-revision-close">닫기</button>
-    </div>
-  </dialog>
-
-  <!-- 그래프 뷰 -->
-  <dialog id="dlg-graph" class="graph-dialog">
-    <div class="graph-header">
-      <strong>그래프</strong>
-      <span class="legend"><i class="dot me"></i><span id="legend-me"></span> <i class="dot other"></i><span id="legend-other"></span> <i class="dot ghost"></i>아직 없는 노트</span>
-      <button id="btn-graph-close">닫기</button>
-    </div>
-    <canvas id="graph-canvas"></canvas>
-  </dialog>
-
-  <div id="toast" class="toast" hidden></div>
+  <div id="drawer-backdrop" class="drawer-backdrop"></div>
+  <div id="notice-container" class="notice-container"></div>
 
   <script type="module" src="app.js"></script>
 </body>

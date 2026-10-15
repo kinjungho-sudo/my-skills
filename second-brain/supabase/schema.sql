@@ -218,5 +218,46 @@ grant execute on function public.sb_is_member(), public.sb_claim_membership(), p
 alter publication supabase_realtime add table public.sb_notes;
 
 -- 초대 (재한님 이메일은 확인 후 추가)
-insert into public.sb_invites (email, display_name) values ('kinjungho@gmail.com', '준호');
+insert into public.sb_invites (email, display_name) values ('kinjungho@gmail.com', '정호');
 -- insert into public.sb_invites (email, display_name) values ('재한님@gmail.com', '재한');
+
+-- ===== v2: 폴더 =====
+-- 노트의 폴더 경로 ('' = 최상위, 예: '리서치/메커니즘'). 링크는 제목으로만 이어지므로 폴더를 옮겨도 링크는 그대로다.
+alter table public.sb_notes add column if not exists folder text not null default ''
+  check (folder = '' or (folder !~ '(^/|/$|//)' and folder !~ '[][|#^\\]'));
+
+-- 빈 폴더도 남도록 폴더 목록을 따로 둔다. 지우기는 hidden_at 표시로만 한다.
+create table if not exists public.sb_folders (
+  path text primary key check (path <> '' and path !~ '(^/|/$|//)' and path !~ '[][|#^\\]'),
+  created_by uuid not null default auth.uid() references auth.users(id),
+  created_at timestamptz not null default now(),
+  hidden_at timestamptz
+);
+alter table public.sb_folders enable row level security;
+create policy sb_folders_read on public.sb_folders for select to authenticated using (public.sb_is_member());
+create policy sb_folders_insert on public.sb_folders for insert to authenticated with check (public.sb_is_member());
+create policy sb_folders_update on public.sb_folders for update to authenticated using (public.sb_is_member()) with check (public.sb_is_member());
+revoke all on public.sb_folders from anon;
+alter publication supabase_realtime add table public.sb_folders;
+
+-- 폴더 이름 바꾸기/옮기기: 하위 폴더와 안의 노트 경로를 한 트랜잭션에서 바꾼다
+create or replace function public.sb_rename_folder(p_old text, p_new text) returns int
+language plpgsql security definer set search_path = '' as $$
+declare v_count int; v_pre text := p_old || '/';
+begin
+  if not public.sb_is_member() then raise exception 'not a member'; end if;
+  if p_new = '' or p_new ~ '(^/|/$|//)' or p_new ~ '[][|#^\\]' then raise exception 'invalid folder name'; end if;
+  if p_new = p_old or left(p_new, length(v_pre)) = v_pre then raise exception 'invalid target'; end if;
+  insert into public.sb_folders (path)
+    select p_new || substr(f.path, length(p_old) + 1) from public.sb_folders f
+    where (f.path = p_old or left(f.path, length(v_pre)) = v_pre) and f.hidden_at is null
+    on conflict (path) do update set hidden_at = null;
+  insert into public.sb_folders (path) values (p_new) on conflict (path) do update set hidden_at = null;
+  update public.sb_folders set hidden_at = now() where path = p_old or left(path, length(v_pre)) = v_pre;
+  update public.sb_notes set folder = p_new || substr(folder, length(p_old) + 1)
+    where folder = p_old or left(folder, length(v_pre)) = v_pre;
+  get diagnostics v_count = row_count;
+  return v_count;
+end $$;
+revoke execute on function public.sb_rename_folder(text, text) from public, anon;
+grant execute on function public.sb_rename_folder(text, text) to authenticated;
