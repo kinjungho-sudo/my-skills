@@ -218,7 +218,7 @@ grant execute on function public.sb_is_member(), public.sb_claim_membership(), p
 alter publication supabase_realtime add table public.sb_notes;
 
 -- 초대 (재한님 이메일은 확인 후 추가)
-insert into public.sb_invites (email, display_name) values ('kinjungho@gmail.com', '준호');
+insert into public.sb_invites (email, display_name) values ('kinjungho@gmail.com', '정호');
 -- insert into public.sb_invites (email, display_name) values ('재한님@gmail.com', '재한');
 
 -- ===== v2: 폴더 =====
